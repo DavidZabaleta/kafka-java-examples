@@ -1,6 +1,9 @@
 package com.berako.berakademy.kafka.tutorial1.producers;
 
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +13,11 @@ import java.util.concurrent.Future;
 
 import static java.util.Objects.nonNull;
 
-public class KafkaProducerImpl {
+public class KafkaProducerImpl<K, V> {
     private final Logger LOGGER = LoggerFactory.getLogger(KafkaProducerImpl.class);
+    private final KafkaProducer<K, V> kafkaProducer;
+
     private Properties properties;
-    private final KafkaProducer<String, String> kafkaProducer;
 
     public KafkaProducerImpl(String bootstrapServer) {
         createProducerProperties(bootstrapServer);
@@ -28,7 +32,7 @@ public class KafkaProducerImpl {
         this.properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     }
 
-    public Future<RecordMetadata> sendData(ProducerRecord<String, String> record) {
+    public Future<RecordMetadata> sendData(ProducerRecord<K, V> record) {
         return kafkaProducer.send(record, (recordMetadata, e) -> {
             if (nonNull(e))
                 LOGGER.error("Error while producing the message: ", e);

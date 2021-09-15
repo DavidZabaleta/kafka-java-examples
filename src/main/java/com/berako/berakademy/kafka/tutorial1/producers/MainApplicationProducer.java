@@ -1,19 +1,19 @@
-package com.berako.berakademy.kafka.tutorial1;
+package com.berako.berakademy.kafka.tutorial1.producers;
 
-import com.berako.berakademy.kafka.tutorial1.producers.KafkaProducerImpl;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.function.Function;
 
-public class MainApplication {
+public class MainApplicationProducer {
     private static final String FIRST_TOPIC = "first_topic";
+    private static final String SECOND_TOPIC = "second_topic";
     private static final String BOOTSTRAP_SERVER = "127.0.0.1:9092";
 
     public static void main(String[] args) {
-        KafkaProducerImpl kafkaProducerImpl = new KafkaProducerImpl(BOOTSTRAP_SERVER);
+        KafkaProducerImpl<String, String> kafkaProducerImpl = new KafkaProducerImpl(BOOTSTRAP_SERVER);
 
         sendLoopMessages(10, integer -> kafkaProducerImpl.sendData(createProducerRecordWithKey(integer)));
-        sendLoopMessages(1, integer -> kafkaProducerImpl.sendData(createProducerRecord(integer)));
+        sendLoopMessages(10, integer -> kafkaProducerImpl.sendData(createProducerRecord(integer)));
 
         kafkaProducerImpl.closeFlushing();
     }
@@ -26,14 +26,14 @@ public class MainApplication {
 
     private static ProducerRecord<String, String> createProducerRecord(Integer incrementMessage) {
 
-        return new ProducerRecord<>(FIRST_TOPIC, String.format("{\"hello world\": \"%s\"}", incrementMessage));
+        return new ProducerRecord<>(SECOND_TOPIC, String.format("{\"hello world\": \"%s\"}", incrementMessage));
     }
 
     private static ProducerRecord<String, String> createProducerRecordWithKey(Integer key) {
         return new ProducerRecord<>(
                 FIRST_TOPIC,
                 String.format("id_%s", key),
-                String.format("{\"hello world\": \"%s\"}", key)
+                String.format("{\"message\": \"%s\"}", key)
         );
     }
 }
