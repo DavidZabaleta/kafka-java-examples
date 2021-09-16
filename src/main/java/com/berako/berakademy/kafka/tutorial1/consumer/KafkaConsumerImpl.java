@@ -3,6 +3,7 @@ package com.berako.berakademy.kafka.tutorial1.consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +40,36 @@ public class KafkaConsumerImpl<K, V> {
     }
 
     public void subscribeToTopic(List<String> topics) {
+        int numberOfMessagesToRead = 10;
+        int numberOfMessagesReadSoFar = 0;
+        boolean keepOnReading = Boolean.TRUE;
+
         kafkaConsumer.subscribe(topics);
 
-        while (true) {
+        while (keepOnReading) {
             ConsumerRecords<K, V> records = kafkaConsumer.poll(Duration.ofMillis(100));
 
             for (ConsumerRecord<K, V> record: records){
+                numberOfMessagesReadSoFar += 1;
+
                 LOGGER.info(String.format("Topic: %s", record.topic()));
                 LOGGER.info(String.format("Key: %s, Value: %s", record.key(), record.value()));
                 LOGGER.info(String.format("Partition: %s, Offset: %s", record.partition(), record.offset()));
+
+                if (numberOfMessagesReadSoFar >= numberOfMessagesToRead) {
+                    keepOnReading = false;
+                    break;
+                }
             }
         }
+
+        LOGGER.info("Exiting the application");
+    }
+
+    public void fetchFromOffset(List<TopicPartition> topicsPartition, Long offsetToFetchFrom) {
+        kafkaConsumer.assign(topicsPartition);
+
+        topicsPartition.forEach(topicPartition ->
+                kafkaConsumer.seek(topicPartition, offsetToFetchFrom));
     }
 }

@@ -12,5 +12,10 @@ public class MainApplicationConsumer {
     public static void main(String[] args) {
         KafkaConsumerImpl<String, String> kafkaConsumer = new KafkaConsumerImpl<>(BOOTSTRAP_SERVER, GROUP_ID, OFFSET_RESET_STRATEGY);
         kafkaConsumer.subscribeToTopic(Arrays.asList(FIRST_TOPIC, SECOND_TOPIC));
+
+        /*
+         * Use this implementation for a manual fetch from a specific partition and offset
+        kafkaConsumer.fetchFromOffset(Collections.singletonList(new TopicPartition(FIRST_TOPIC, 3)), 155L);
+        * */
     }
 }
